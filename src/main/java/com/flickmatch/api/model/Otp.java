@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 
 @Entity
@@ -22,6 +23,6 @@ public class Otp {
     @NotBlank(message = "email cannot be blank")
     private String email;
 
-    @NotBlank(message = "Otp cannot be blank")
+    @Range(min = 100000, max = 999999, message = "Bad OTP")
     private int otp;
 }

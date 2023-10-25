@@ -5,18 +5,20 @@ spring:
     password: postgres
     driver-class-name: org.postgresql.Driver
   mail:
-    senderEmail: "foo@gmail.com"
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
     host: smtp.gmail.com
     port: 587
-    username: flickmatch-api
-    password: zttpycdlhrubjlst
-    smtp:
-      auth: true
-      starttls:
-        enable: true
+    username: mettukuruavinashreddy@gmail.com
+    password: nwmycrafoytmewih
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -25,3 +27,4 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 config:
   SECRET_KEY: c7968315550171100df07375129e6a2e1f87defda3dceb5f56103ddb43b5d1df009d157d109aec24fb8481d207baadc41f837a02b3946f82c4d6098abd33d01a
+  TMDB_AUTH: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhZDgyODFkNWVhZTcxMWFkM2FkMjQwNzU5MWE0MzYwYyIsInN1YiI6IjY1MWMzOTdhOGMyMmMwMDBjOTA4MDc5YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.3OTLuEDO19-dFuvYA9PQ0Pbbqnxh38TASzEGzmw1B24

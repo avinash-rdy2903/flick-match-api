@@ -1,5 +1,6 @@
 package com.flickmatch.api.service;
 
+import com.flickmatch.api.model.Otp;
 import com.flickmatch.api.model.User;
 import com.flickmatch.api.pojoClass.AuthenticationResponse;
 import com.flickmatch.api.repository.OtpRepository;
@@ -13,6 +14,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
+import java.text.DecimalFormat;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -32,14 +36,15 @@ public class EmailService {
 
     public AuthenticationResponse generateOtp(String email) throws Exception{
         String senderEmail = env.getProperty("spring.mail.username");
+        System.out.println(senderEmail);
         User user = userRepository.findByEmail(email).orElseThrow(
                 ()->new RuntimeException("SystemError")
         );
         String token = jwtService.generateToken(user);
         MimeMessage message  = javaMailSender.createMimeMessage();
-
-        message.setFrom(new InternetAddress(senderEmail));
-        message.setRecipients(MimeMessage.RecipientType.TO, "recipient@example.com");
+        String otp= new DecimalFormat("000000").format(new Random().nextInt(999999));
+        message.setFrom(senderEmail);
+        message.setRecipients(MimeMessage.RecipientType.TO, email);
         message.setSubject("FlickMatch - Reset Password Otp");
         String htmlContent = "<!doctype html>\n" +
                 "<html lang=\"en\">\n" +
@@ -70,11 +75,6 @@ public class EmailService {
                 "                        style=\" width:601px; margin:0 auto; background:#fff;\">\n" +
                 "                        <tbody>\n" +
                 "                            <tr>\n" +
-                "                                <td style=\"padding:15px 30px;\">\n" +
-                "                                    <img src=\"https://static-cdn2.mycardplace.com/componentcontentdelivery/cstatic/907a5aed-9955-4998-bac0-5227405689e7/zolve32-logo.png\" width=\"100\" alt=\"Zolve\">\n" +
-                "                                </td>\n" +
-                "                            </tr>\n" +
-                "                            <tr>\n" +
                 "                                <td style=\"border-bottom:2px solid #f3f3f3; font-size:0; line-height:0;\"></td>\n" +
                 "                            </tr>\n" +
                 "                            <tr>\n" +
@@ -96,13 +96,13 @@ public class EmailService {
                 "                            <tr>\n" +
                 "                                <td\n" +
                 "                                    style=\" font-family:Arial, Helvetica, sans-serif; color:#3e3e3e; font-size:14px; line-height:26px; \">\n" +
-                "                                    <p>723461 is your OTP to continue using Zolve Credit/Debit for account number\n" +
-                "                                        3265. Do not share it with anyone.</p>\n" +
+                "                                    <p>"+otp+" is your OTP to continue using FlickMatch for \n" + email+
+                "                                        . Do not share it with anyone.</p>\n" +
                 "                                </td>\n" +
                 "                            </tr>\n" +
                 "                            <!-- <td style=\"font-family:Arial, Helvetica, sans-serif; color:#333; font-size:14px; line-height:24px;\">\n" +
                 "\t\t\t\t\t\t\t\t<div style=\"padding:10px 10px; background:#eef5e9;  border: solid 1px #ddd;font-weight: normal;\">\n" +
-                "\t\t\t\t\t\t\t\t\t <strong>One Time Password : 723461</strong>\n" +
+                "\t\t\t\t\t\t\t\t\t <strong>One Time Password : "+otp+"</strong>\n" +
                 "\t\t\t\t\t\t\t\t</div>\n" +
                 "\t\t\t\t\t\t\t</td> -->\n" +
                 "            </tr>\n" +
@@ -120,13 +120,7 @@ public class EmailService {
                 "            <tr>\n" +
                 "                <td height=\"15\" style=\" font-size:0; line-height:0;\"></td>\n" +
                 "            </tr>\n" +
-                "            <tr>\n" +
-                "                <td style=\" font-family:Arial, Helvetica, sans-serif; color:#3e3e3e; font-size:14px; line-height:26px;\">\n" +
-                "                    To report fraud, please contact the Zolve support on the in-app chat or on\n" +
-                "                    <a href=\"mailto:hello@zolve.com\">hello@zolve.com</a>\n" +
-                "                </td>\n" +
-                "            </tr>\n" +
-                "            <tr>\n" +
+                "            "+"<tr>\n" +
                 "                <td height=\"15\" style=\" font-size:0; line-height:0;\"></td>\n" +
                 "            </tr>\n" +
                 "            <!-- Ending Greetings -->\n" +
@@ -142,7 +136,7 @@ public class EmailService {
                 "                <tr>\n" +
                 "                    <td bgcolor=\"#ffffff\" valign=\"top\"\n" +
                 "                        style=\"font-family: Calibri, sans-serif; font-size: 16px; line-height: 1.5; color: #000000;\">\n" +
-                "                        Team Zolve\n" +
+                "                        Team Flick Match\n" +
                 "</td>\n" +
                 "                </tr>\n" +
                 "                <!-- <tr>\n" +
@@ -219,6 +213,11 @@ public class EmailService {
         message.setContent(htmlContent,"text/html; charset=utf-8");
 
         javaMailSender.send(message);
+        Otp otpEntity = otpRepository.findByEmail(email).orElse(Otp.builder()
+                .otp(Integer.parseInt(otp))
+                .email(email).build());
+        otpEntity.setOtp(Integer.parseInt(otp));
+        otpRepository.save(otpEntity);
 
         return AuthenticationResponse.builder()
                 .token(token)

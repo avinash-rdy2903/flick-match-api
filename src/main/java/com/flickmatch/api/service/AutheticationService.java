@@ -61,12 +61,15 @@ public class AutheticationService {
                 ()-> new RuntimeException(String.format("User Input error, {}","Email not found/incorrect"))
         );
         Otp otp = otpRepository.findByEmail(email).orElseThrow(
-                ()->new RuntimeException()
+                ()->new RuntimeException("Please generate a OTP first")
         );
         if(otp.getOtp()!=request.getOtp()){
-            throw new RuntimeException(String.format("System Error"));
+            throw new RuntimeException(String.format("Provided OTP incorrect"));
         }
         String token = jwtService.generateToken(user);
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        otpRepository.deleteById(otp.getId());
         return AuthenticationResponse.builder()
                 .token(token)
                 .build();

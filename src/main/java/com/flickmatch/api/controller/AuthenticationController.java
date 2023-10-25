@@ -38,18 +38,21 @@ public class AuthenticationController {
         try {
             return ResponseEntity.ok(emailService.generateOtp(request.getEmail()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthenticationResponse(e.getMessage()));
         }
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<Object> resetPassword(
+    public ResponseEntity<?> resetPassword(
             @RequestBody ResetPasswordRequest request, @RequestHeader(value="Authorization") String authHeader
     ){
         try {
+            System.out.println(authHeader);
             return ResponseEntity.ok(autheticationService.resetPassword(authHeader.substring(7), request));
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 }
