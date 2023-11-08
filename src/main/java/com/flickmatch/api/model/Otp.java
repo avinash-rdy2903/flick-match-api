@@ -23,6 +23,6 @@ public class Otp {
     @NotBlank(message = "email cannot be blank")
     private String email;
 
-    @Range(min = 100000, max = 999999, message = "Bad OTP")
+    @Range(min = 0, max = 999999, message = "Bad OTP")
     private int otp;
 }
