@@ -1,11 +1,13 @@
 package com.flickmatch.api.controller;
 
+import com.flickmatch.api.model.User;
 import com.flickmatch.api.pojoClass.*;
 import com.flickmatch.api.service.AutheticationService;
 import com.flickmatch.api.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +44,16 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthenticationResponse(e.getMessage()));
         }
     }
+    @GetMapping(value = "/user",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BasicUserDetails> getUser(@RequestHeader(value="Authorization") String authHeader){
+        String jwt = authHeader.substring(7);
+        return autheticationService.getUser(jwt);
+    }
 
+    @PutMapping(value = "/user",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BasicUserDetails> putUser(@RequestBody BasicUserDetails request){
+        return autheticationService.putUser(request);
+    }
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(
             @RequestBody ResetPasswordRequest request, @RequestHeader(value="Authorization") String authHeader

@@ -7,6 +7,7 @@ import com.flickmatch.api.pojoClass.*;
 import com.flickmatch.api.repository.OtpRepository;
 import com.flickmatch.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,5 +74,34 @@ public class AutheticationService {
         return AuthenticationResponse.builder()
                 .token(token)
                 .build();
+    }
+
+    public ResponseEntity<BasicUserDetails> getUser(String jwt) {
+        User user = userRepository.findByEmail(jwtService.extractClaimUserEmail(jwt))
+                .orElseThrow(()-> new RuntimeException("Invalid user Token, close app!!"));
+        return ResponseEntity.ok(BasicUserDetails.builder()
+                .userId(user.getUserid())
+                .email(user.getEmail())
+                .lastName(user.getLastName())
+                .firstName(user.getFirstName())
+                .build()
+            );
+//        return ResponseEntity.ok(user);
+    }
+
+    public ResponseEntity<BasicUserDetails> putUser(BasicUserDetails details) {
+        User user = userRepository.getReferenceById(details.getUserId());
+
+        user.setFirstName(details.getFirstName());
+        user.setLastName(details.getLastName());
+        user.setEmail(details.getEmail());
+        userRepository.save(user);
+        return ResponseEntity.ok(BasicUserDetails.builder()
+                .userId(user.getUserid())
+                .email(user.getEmail())
+                .lastName(user.getLastName())
+                .firstName(user.getFirstName())
+                .build()
+        );
     }
 }

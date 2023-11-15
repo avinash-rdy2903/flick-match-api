@@ -19,7 +19,7 @@ public class Otp {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(unique = true,nullable = false)
+    @Column(unique = true)
     @NotBlank(message = "email cannot be blank")
     private String email;
 
